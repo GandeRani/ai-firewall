@@ -776,7 +776,7 @@ Make sure the following are installed:
 # 1️⃣ Clone the Repository
 
 ```bash
-git clone <YOUR_GITHUB_REPOSITORY_URL>
+git clone https://github.com/GandeRani/ai-firewall.git
 cd ai-firewall
 ```
 
@@ -1145,23 +1145,23 @@ Data Privacy
 
 The following features are implemented in the current MVP:
 
-- [x] Prompt Scanner
-- [x] PII Detection
-- [x] Email Detection
-- [x] Phone Detection
-- [x] Credit Card Detection
-- [x] Aadhaar Detection
-- [x] PAN Detection
-- [x] Prompt Injection Detection
-- [x] Jailbreak Detection
-- [x] Risk Scoring
-- [x] ALLOW / MASK / BLOCK Decision Engine
-- [x] Smart PII Masking
-- [x] Security Dashboard
-- [x] Security Statistics
-- [x] Security Logs
-- [x] Frontend + Backend Integration
-- [x] Live Dashboard Refresh
+- ✅ Prompt Scanner
+- ✅ PII Detection
+- ✅ Email Detection
+- ✅ Phone Detection
+- ✅ Credit Card Detection
+- ✅ Aadhaar Detection
+- ✅ PAN Detection
+- ✅ Prompt Injection Detection
+- ✅ Jailbreak Detection
+- ✅ Risk Scoring
+- ✅ ALLOW / MASK / BLOCK Decision Engine
+- ✅ Smart PII Masking
+- ✅ Security Dashboard
+- ✅ Security Statistics
+- ✅ Security Logs
+- ✅ Frontend + Backend Integration
+- ✅ Live Dashboard Refresh
 
 ---
 
