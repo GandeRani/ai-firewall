@@ -1,0 +1,24 @@
+# Python
+.venv/
+venv/
+backend/.venv/
+backend/venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+
+# Logs
+*.log
+
+# Node
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
