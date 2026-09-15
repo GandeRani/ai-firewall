@@ -1,16 +1,23 @@
 # ============================================================
+# AI FIREWALL - RISK ENGINE
+# ============================================================
+
+# ============================================================
 # RISK WEIGHTS
 # ============================================================
 
 RISK_WEIGHTS = {
+    # PII
     "EMAIL": 40,
     "PHONE": 40,
     "CREDIT_CARD": 60,
     "AADHAAR": 60,
     "PAN": 50,
 
-    "PROMPT_INJECTION": 50,
-    "JAILBREAK": 60,
+    # AI SECURITY THREATS
+    # High enough to reach DANGER level
+    "PROMPT_INJECTION": 80,
+    "JAILBREAK": 90,
 }
 
 
@@ -20,9 +27,12 @@ RISK_WEIGHTS = {
 
 def calculate_risk(detected: list[str]) -> int:
     """
-    Calculate total risk score.
+    Calculate the overall risk score.
 
-    Score is capped at 100.
+    The score is calculated by adding the risk weight
+    of every detected threat.
+
+    Maximum score = 100.
     """
 
     score = 0
@@ -37,14 +47,42 @@ def calculate_risk(detected: list[str]) -> int:
 # ACTION DECISION
 # ============================================================
 
-def determine_action(score: int) -> str:
+def determine_action(
+    score: int,
+    detected: list[str] | None = None
+) -> str:
     """
-    Decide what the firewall should do.
+    Decide the firewall action.
 
-    0-30   -> ALLOW
-    31-70  -> MASK
-    71-100 -> BLOCK
+    Priority:
+        1. Prompt Injection -> BLOCK
+        2. Jailbreak        -> BLOCK
+        3. Risk score       -> ALLOW / MASK / BLOCK
+
+    Normal PII:
+        0-30   -> ALLOW
+        31-70  -> MASK
+        71-100 -> BLOCK
     """
+
+    detected = detected or []
+
+    # --------------------------------------------------------
+    # SECURITY ATTACKS
+    # --------------------------------------------------------
+    # These attacks should NEVER be simply masked.
+    # They must be blocked.
+    # --------------------------------------------------------
+
+    if "PROMPT_INJECTION" in detected:
+        return "BLOCK"
+
+    if "JAILBREAK" in detected:
+        return "BLOCK"
+
+    # --------------------------------------------------------
+    # NORMAL RISK-BASED DECISION
+    # --------------------------------------------------------
 
     if score <= 30:
         return "ALLOW"

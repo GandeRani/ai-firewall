@@ -62,22 +62,29 @@ def check_prompt(request: FirewallRequest):
     risk_score = calculate_risk(detected)
 
     # --------------------------------------------------------
-    # 3. Decide action
+    # 3. Decide firewall action
     # --------------------------------------------------------
 
-    action = determine_action(risk_score)
+    action = determine_action(
+        risk_score,
+        detected
+    )
 
     # --------------------------------------------------------
     # 4. Secure prompt
     # --------------------------------------------------------
 
-    if detected:
+    if action == "BLOCK":
+        secured_prompt = None
+
+    elif action == "MASK":
         secured_prompt = mask_prompt(prompt)
+
     else:
         secured_prompt = prompt
 
     # --------------------------------------------------------
-    # 5. Create log
+    # 5. Create security log
     # --------------------------------------------------------
 
     log_entry = {
@@ -96,7 +103,7 @@ def check_prompt(request: FirewallRequest):
         security_logs.pop(0)
 
     # --------------------------------------------------------
-    # 6. Return result
+    # 6. Return firewall result
     # --------------------------------------------------------
 
     return {
@@ -108,7 +115,7 @@ def check_prompt(request: FirewallRequest):
 
 
 # ============================================================
-# LOGS
+# SECURITY LOGS
 # ============================================================
 
 @router.get("/logs")
