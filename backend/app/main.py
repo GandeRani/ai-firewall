@@ -11,21 +11,34 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Frontend connection
+
+# ============================================================
+# CORS CONFIGURATION
+# ============================================================
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",
+        "https://ai-firewall-delta.vercel.app",
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# API routes
+
+# ============================================================
+# API ROUTES
+# ============================================================
+
 app.include_router(firewall_router)
 app.include_router(dashboard_router)
 
+
+# ============================================================
+# HEALTH CHECK
+# ============================================================
 
 @app.get("/")
 def home():
