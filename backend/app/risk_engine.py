@@ -9,9 +9,9 @@
 
 RISK_WEIGHTS = {
 
-    # ========================================================
+    # -------------------------------
     # PII
-    # ========================================================
+    # -------------------------------
 
     "EMAIL": 40,
     "PHONE": 40,
@@ -20,18 +20,18 @@ RISK_WEIGHTS = {
     "PAN": 50,
 
 
-    # ========================================================
-    # SECRET / CREDENTIAL LEAKS
-    # ========================================================
+    # -------------------------------
+    # SECRET LEAKS
+    # -------------------------------
 
     "AWS_KEY": 80,
     "API_KEY": 80,
     "PASSWORD": 70,
 
 
-    # ========================================================
+    # -------------------------------
     # AI SECURITY THREATS
-    # ========================================================
+    # -------------------------------
 
     "PROMPT_INJECTION": 80,
     "JAILBREAK": 90,
@@ -40,17 +40,14 @@ RISK_WEIGHTS = {
 
 
 # ============================================================
-# RISK CALCULATION
+# CALCULATE RISK SCORE
 # ============================================================
 
 def calculate_risk(detected: list[str]) -> int:
     """
-    Calculate the overall risk score.
+    Calculate total firewall risk score.
 
-    Score is calculated by adding
-    weights of detected threats.
-
-    Maximum score = 100.
+    Maximum score = 100
     """
 
     score = 0
@@ -63,7 +60,7 @@ def calculate_risk(detected: list[str]) -> int:
 
 
 # ============================================================
-# ACTION DECISION
+# FIREWALL ACTION DECISION
 # ============================================================
 
 def determine_action(
@@ -71,31 +68,27 @@ def determine_action(
     detected: list[str] | None = None
 ) -> str:
     """
-    Decide firewall action.
+    Decide firewall response.
 
     Priority:
 
     1. Prompt Injection -> BLOCK
-    2. Jailbreak        -> BLOCK
-    3. Secret Leakage   -> BLOCK
-    4. Risk score       -> ALLOW / MASK / BLOCK
+    2. Jailbreak -> BLOCK
+    3. Secret Leak -> BLOCK
+    4. Risk Based Decision
 
-
-    Risk levels:
-
-    0-30   -> ALLOW
-    31-70  -> MASK
-    71-100 -> BLOCK
+    Risk:
+    0-30   ALLOW
+    31-70  MASK
+    71-100 BLOCK
     """
-
 
     detected = detected or []
 
 
-
-    # ========================================================
+    # -------------------------------
     # AI ATTACKS
-    # ========================================================
+    # -------------------------------
 
     if "PROMPT_INJECTION" in detected:
         return "BLOCK"
@@ -106,26 +99,28 @@ def determine_action(
 
 
 
-    # ========================================================
+    # -------------------------------
     # SECRET LEAKS
-    # ========================================================
+    # -------------------------------
 
-    if "AWS_KEY" in detected:
+    secret_types = [
+        "AWS_KEY",
+        "API_KEY",
+        "PASSWORD"
+    ]
+
+
+    if any(
+        secret in detected
+        for secret in secret_types
+    ):
         return "BLOCK"
 
 
-    if "API_KEY" in detected:
-        return "BLOCK"
 
-
-    if "PASSWORD" in detected:
-        return "BLOCK"
-
-
-
-    # ========================================================
-    # NORMAL RISK DECISION
-    # ========================================================
+    # -------------------------------
+    # NORMAL RISK
+    # -------------------------------
 
     if score <= 30:
         return "ALLOW"

@@ -38,30 +38,20 @@ PAN_PATTERN = re.compile(
 
 
 # AWS Access Key
-# Example:
-# AKIAIOSFODNN7EXAMPLE
-
 AWS_KEY_PATTERN = re.compile(
     r"\bAKIA[0-9A-Z]{16}\b"
 )
 
 
-
-# API Key
+# API Keys
 # Example:
-# sk-xxxxxxxxxxxxxxxxxxxx
-
+# sk-abcdefghijklmnopqrstuvwxyz
 API_KEY_PATTERN = re.compile(
-    r"\bsk-[A-Za-z0-9]{20,}\b"
+    r"\b(sk-[A-Za-z0-9_-]{10,})\b"
 )
 
 
-
 # Password / Secret
-# Examples:
-# password=admin123
-# pwd:hello123
-
 PASSWORD_PATTERN = re.compile(
     r"(?i)\b(password|passwd|pwd|secret)\s*[:=]\s*\S+"
 )
@@ -93,7 +83,6 @@ PROMPT_INJECTION_PATTERNS = [
     r"show\s+(me\s+)?the\s+system\s+prompt",
 
     r"print\s+(the\s+)?system\s+prompt",
-
 ]
 
 
@@ -156,39 +145,26 @@ def detect_pii(prompt: str) -> list[str]:
 
 
     if CREDIT_CARD_PATTERN.search(prompt):
-
         detected.append("CREDIT_CARD")
-
         credit_card_found = True
 
 
-
     if EMAIL_PATTERN.search(prompt):
-
         detected.append("EMAIL")
 
 
-
     if PHONE_PATTERN.search(prompt):
-
         detected.append("PHONE")
 
-
-
-    # Avoid Aadhaar detecting credit card
 
     if not credit_card_found:
 
         if AADHAAR_PATTERN.search(prompt):
-
             detected.append("AADHAAR")
 
 
-
     if PAN_PATTERN.search(prompt):
-
         detected.append("PAN")
-
 
 
     return detected
@@ -205,21 +181,15 @@ def detect_secrets(prompt: str) -> list[str]:
 
 
     if AWS_KEY_PATTERN.search(prompt):
-
         detected.append("AWS_KEY")
 
 
-
     if API_KEY_PATTERN.search(prompt):
-
         detected.append("API_KEY")
 
 
-
     if PASSWORD_PATTERN.search(prompt):
-
         detected.append("PASSWORD")
-
 
 
     return detected
@@ -240,7 +210,6 @@ def detect_prompt_injection(prompt: str) -> list[str]:
         if re.search(pattern, prompt, re.IGNORECASE):
 
             detected.append("PROMPT_INJECTION")
-
             break
 
 
@@ -262,7 +231,6 @@ def detect_jailbreak(prompt: str) -> list[str]:
         if re.search(pattern, prompt, re.IGNORECASE):
 
             detected.append("JAILBREAK")
-
             break
 
 
