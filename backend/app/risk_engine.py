@@ -2,23 +2,41 @@
 # AI FIREWALL - RISK ENGINE
 # ============================================================
 
+
 # ============================================================
 # RISK WEIGHTS
 # ============================================================
 
 RISK_WEIGHTS = {
+
+    # ========================================================
     # PII
+    # ========================================================
+
     "EMAIL": 40,
     "PHONE": 40,
     "CREDIT_CARD": 60,
     "AADHAAR": 60,
     "PAN": 50,
 
+
+    # ========================================================
+    # SECRET / CREDENTIAL LEAKS
+    # ========================================================
+
+    "AWS_KEY": 80,
+    "API_KEY": 80,
+    "PASSWORD": 70,
+
+
+    # ========================================================
     # AI SECURITY THREATS
-    # High enough to reach DANGER level
+    # ========================================================
+
     "PROMPT_INJECTION": 80,
     "JAILBREAK": 90,
 }
+
 
 
 # ============================================================
@@ -29,8 +47,8 @@ def calculate_risk(detected: list[str]) -> int:
     """
     Calculate the overall risk score.
 
-    The score is calculated by adding the risk weight
-    of every detected threat.
+    Score is calculated by adding
+    weights of detected threats.
 
     Maximum score = 100.
     """
@@ -43,6 +61,7 @@ def calculate_risk(detected: list[str]) -> int:
     return min(score, 100)
 
 
+
 # ============================================================
 # ACTION DECISION
 # ============================================================
@@ -52,42 +71,68 @@ def determine_action(
     detected: list[str] | None = None
 ) -> str:
     """
-    Decide the firewall action.
+    Decide firewall action.
 
     Priority:
-        1. Prompt Injection -> BLOCK
-        2. Jailbreak        -> BLOCK
-        3. Risk score       -> ALLOW / MASK / BLOCK
 
-    Normal PII:
-        0-30   -> ALLOW
-        31-70  -> MASK
-        71-100 -> BLOCK
+    1. Prompt Injection -> BLOCK
+    2. Jailbreak        -> BLOCK
+    3. Secret Leakage   -> BLOCK
+    4. Risk score       -> ALLOW / MASK / BLOCK
+
+
+    Risk levels:
+
+    0-30   -> ALLOW
+    31-70  -> MASK
+    71-100 -> BLOCK
     """
+
 
     detected = detected or []
 
-    # --------------------------------------------------------
-    # SECURITY ATTACKS
-    # --------------------------------------------------------
-    # These attacks should NEVER be simply masked.
-    # They must be blocked.
-    # --------------------------------------------------------
+
+
+    # ========================================================
+    # AI ATTACKS
+    # ========================================================
 
     if "PROMPT_INJECTION" in detected:
         return "BLOCK"
 
+
     if "JAILBREAK" in detected:
         return "BLOCK"
 
-    # --------------------------------------------------------
-    # NORMAL RISK-BASED DECISION
-    # --------------------------------------------------------
+
+
+    # ========================================================
+    # SECRET LEAKS
+    # ========================================================
+
+    if "AWS_KEY" in detected:
+        return "BLOCK"
+
+
+    if "API_KEY" in detected:
+        return "BLOCK"
+
+
+    if "PASSWORD" in detected:
+        return "BLOCK"
+
+
+
+    # ========================================================
+    # NORMAL RISK DECISION
+    # ========================================================
 
     if score <= 30:
         return "ALLOW"
 
+
     if score <= 70:
         return "MASK"
+
 
     return "BLOCK"

@@ -11,39 +11,59 @@ EMAIL_PATTERN = re.compile(
 
 
 PHONE_PATTERN = re.compile(
-    r"(?<!\d)(?:\+91[\s-]?)?[6-9]\d{9}(?!\d)"
+    r"(?<!\d)(?:\+91[\s-]?)?[6-9]\d{4}[\s-]?\d{5}(?!\d)"
 )
 
-
-# Credit Card
-# Examples:
-# 4111111111111111
-# 4111 1111 1111 1111
-# 4111-1111-1111-1111
 
 CREDIT_CARD_PATTERN = re.compile(
     r"(?<!\d)(?:\d{4}[\s-]?){3}\d{4}(?!\d)"
 )
 
 
-# Aadhaar
-# Examples:
-# 1234 5678 9012
-# 1234-5678-9012
-# 123456789012
-
 AADHAAR_PATTERN = re.compile(
     r"(?<!\d)\d{4}[\s-]?\d{4}[\s-]?\d{4}(?!\d)"
 )
 
 
-# PAN Card
-# Example:
-# ABCDE1234F
-
 PAN_PATTERN = re.compile(
     r"\b[A-Z]{5}[0-9]{4}[A-Z]\b",
     re.IGNORECASE
+)
+
+
+
+# ============================================================
+# SECRET PATTERNS
+# ============================================================
+
+
+# AWS Access Key
+# Example:
+# AKIAIOSFODNN7EXAMPLE
+
+AWS_KEY_PATTERN = re.compile(
+    r"\bAKIA[0-9A-Z]{16}\b"
+)
+
+
+
+# API Key
+# Example:
+# sk-xxxxxxxxxxxxxxxxxxxx
+
+API_KEY_PATTERN = re.compile(
+    r"\bsk-[A-Za-z0-9]{20,}\b"
+)
+
+
+
+# Password / Secret
+# Examples:
+# password=admin123
+# pwd:hello123
+
+PASSWORD_PATTERN = re.compile(
+    r"(?i)\b(password|passwd|pwd|secret)\s*[:=]\s*\S+"
 )
 
 
@@ -106,6 +126,20 @@ JAILBREAK_PATTERNS = [
 
     r"without\s+restrictions",
 
+    r"operating\s+in\s+unrestricted\s+mode",
+
+    r"enable\s+unrestricted\s+mode",
+
+    r"enter\s+unrestricted\s+mode",
+
+    r"remove\s+all\s+restrictions",
+
+    r"ignore\s+all\s+limitations",
+
+    r"disable\s+all\s+guardrails",
+
+    r"no\s+restrictions",
+
 ]
 
 
@@ -121,7 +155,6 @@ def detect_pii(prompt: str) -> list[str]:
     credit_card_found = False
 
 
-    # Credit card first
     if CREDIT_CARD_PATTERN.search(prompt):
 
         detected.append("CREDIT_CARD")
@@ -142,7 +175,7 @@ def detect_pii(prompt: str) -> list[str]:
 
 
 
-    # Avoid Aadhaar detecting credit card numbers
+    # Avoid Aadhaar detecting credit card
 
     if not credit_card_found:
 
@@ -155,6 +188,37 @@ def detect_pii(prompt: str) -> list[str]:
     if PAN_PATTERN.search(prompt):
 
         detected.append("PAN")
+
+
+
+    return detected
+
+
+
+# ============================================================
+# DETECT SECRETS
+# ============================================================
+
+def detect_secrets(prompt: str) -> list[str]:
+
+    detected = []
+
+
+    if AWS_KEY_PATTERN.search(prompt):
+
+        detected.append("AWS_KEY")
+
+
+
+    if API_KEY_PATTERN.search(prompt):
+
+        detected.append("API_KEY")
+
+
+
+    if PASSWORD_PATTERN.search(prompt):
+
+        detected.append("PASSWORD")
 
 
 
@@ -217,6 +281,11 @@ def detect_threats(prompt: str) -> list[str]:
 
     threats.extend(
         detect_pii(prompt)
+    )
+
+
+    threats.extend(
+        detect_secrets(prompt)
     )
 
 
